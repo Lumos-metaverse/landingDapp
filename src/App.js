@@ -10,7 +10,7 @@ function App() {
   const contractAddress = '0x55955fD05C03A06177e407dB8cC23c89a9ec5356';
 
   useEffect(() => {
-    const fetchContract = async()=> {
+    const fetchContract = async () => {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractAddress, abi, signer);
@@ -20,15 +20,16 @@ function App() {
   }, []);
 
   useEffect(() => {
-    {contract && updateBalance()}
+    { contract && updateBalance() }
   }, [contract]);
 
   const updateBalance = async () => {
     const userAddress = window.ethereum.selectedAddress;
-    const userBalance = await contract.getBalance(userAddress);
+    const userBalance = await contract.getBalance(userAddress)
     const bal = userBalance.toString()
     setBalance(bal);
   };
+
 
   const deposit = async () => {
     const tx = await contract.deposit({ value: ethers.parseEther(amount) });
@@ -41,6 +42,16 @@ function App() {
     await tx.wait();
     updateBalance();
   };
+  
+  {contract && contract.on('Withdrawn', (user, amount) => {
+    console.log(`User ${user} withdr ${amount} Ether.`);
+  })}
+
+    
+  {contract && contract.on('Deposited', (user, amount) => {
+    console.log(`User ${user} deposited ${amount} Ether.`);
+  })}
+
 
   return (
     <div className="App">
